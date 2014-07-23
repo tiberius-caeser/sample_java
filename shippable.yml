@@ -6,12 +6,26 @@ jdk:
    - openjdk6
    - oraclejdk8
 
-after_success:
+env:
+  global:
+    - SLACK_ORG=shippable PROJECT=sample-java
+    - secure: hJblMCIJsnFWTVKtrKuBPm/NIjqxSaO2XSlSiLwJIycZxse6xV97VJ5vzf9k8K+l5gFH+56oVZ0Bj7oFmvThJSTqQmzxYl4O2wgJO3g4YvUkA9U++ZdCq2rEh6fK2zCcCOpWcxI+fffDHY3E7N1bk4QSMq0fQvZTSudXbMLx5nhQcZj+0uZuEWJfsEtMkqungchqxOyY7QO/WilcmGG6Nr23kkjIi/BzpLxCoL9h2RxtiOKD/BCa3O08atkC/6tbvSoZDrsGiWkVfCsfsjL1PtT9uC2Big0UVr1e8zjO+KR38JwmxpW+bQ9DTAwYFkZLce8qdC7iRToshnhZaamoVg==
+
+script:
    - mvn clean cobertura:cobertura
    - mvn test
 
+after_failure:
+  - python slack_notifier.py --project $PROJECT --org $SLACK_ORG --token $SLACK_TOKEN
+
+after_success:
+  - python slack_notifier.py --project $PROJECT --org $SLACK_ORG --token $SLACK_TOKEN -s
+
 notifications:
-   email:
-       recipients:
-          - exampleone@org.com
-          - exampletwo@org.com
+     email:
+         recipients:
+             - avniel+buildsample@shippable.com
+         on_success: never
+         on_failure: always
+
+reset_minion: true
